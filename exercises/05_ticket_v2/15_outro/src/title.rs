@@ -2,7 +2,39 @@
 //   enforcing that the title is not empty and is not longer than 50 bytes.
 //   Implement the traits required to make the tests pass too.
 
+use crate::Ticket;
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct TicketTitle(String);
+
+#[derive(thiserror::Error, Debug)]
+#[error("{invalid_title}")]
+pub struct ParseTitleError {
+    invalid_title: String,
+}
+
+impl TryFrom<String> for TicketTitle {
+    type Error = ParseTitleError;
+
+    fn try_from(value: String) -> Result<TicketTitle, Self::Error> {
+        if value.is_empty() {
+            Result::Err(ParseTitleError { invalid_title: String::from("The title cannot be empty") })
+        } else if value.len() > 50 {
+            Result::Err(ParseTitleError { invalid_title: String::from("The title cannot be longer than 50 bytes") })
+        } else {
+            Result::Ok(TicketTitle(value))
+        }
+    }
+}
+
+
+impl TryFrom<&str> for TicketTitle {
+    type Error = ParseTitleError;
+
+    fn try_from(value: &str) -> Result<TicketTitle, Self::Error> {
+        TicketTitle::try_from(value.to_string())
+    }
+}
 
 #[cfg(test)]
 mod tests {
